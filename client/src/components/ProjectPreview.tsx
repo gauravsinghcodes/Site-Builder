@@ -1,23 +1,23 @@
-import  { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import type { Project } from '../types';
 import { iframeScript } from '../assets/assets';
 import EditorPanel from './EditorPanel';
 import LoaderSteps from './LoaderSteps';
 
-interface ProjectPreviewProps{
+interface ProjectPreviewProps {
   project: Project;
   isGenerating: boolean;
-  device?:'phone' | 'tablet' | 'desktop';
+  device?: 'phone' | 'tablet' | 'desktop';
   showEditorPanel?: boolean;
 }
 
-export interface ProjectPreviewRef{
-  getCode: ()=> string | undefined;
+export interface ProjectPreviewRef {
+  getCode: () => string | undefined;
 }
 
-const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({project, isGenerating, device = 'desktop', showEditorPanel = true }, ref) => {
+const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({ project, isGenerating, device = 'desktop', showEditorPanel = true }, ref) => {
 
-  const iframeRef = useRef<HTMLFrameElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const [selectedElement, setSelectedElement] = useState<any>(null)
 
   const resolutions = {
@@ -27,13 +27,13 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
 
   }
 
-  useImperativeHandle(ref, ()=>({
-    getCode: ()=> {
+  useImperativeHandle(ref, () => ({
+    getCode: () => {
       const doc = iframeRef.current?.contentDocument;
       if (!doc) return undefined;
 
       // 1. Remove our selection class / attributes / outline from all elements
-      doc.querySelectorAll('.ai-selected-element, [data-ai-selected]').forEach((el)=>{
+      doc.querySelectorAll('.ai-selected-element, [data-ai-selected]').forEach((el) => {
         el.classList.remove('ai-selected-element');
         el.removeAttribute('data-ai-selected');
         (el as HTMLElement).style.outline = '';
@@ -52,20 +52,20 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
     }
   }))
 
-  useEffect(()=> {
-    const handleMessage = (event: MessageEvent)=> {
-      if (event.data.type === 'ELEMENT_SELECTED'){
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'ELEMENT_SELECTED') {
         setSelectedElement(event.data.payload);
-      }else if (event.data.type === 'CLEAR_SELECTION'){
+      } else if (event.data.type === 'CLEAR_SELECTION') {
         setSelectedElement(null)
       }
     }
     window.addEventListener('message', handleMessage);
-    return ()=> window.removeEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
   }, [])
-  
-  const handleUpdate = (updates: any)=> {
-    if (iframeRef.current?.contentWindow){
+
+  const handleUpdate = (updates: any) => {
+    if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
         type: 'UPDATE_ELEMENT',
         payload: updates
@@ -73,13 +73,13 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
     }
   }
 
-  const injectPreview = (html: string)=> {
+  const injectPreview = (html: string) => {
     if (!html) return '';
     if (!showEditorPanel) return html;
 
-    if (html.includes('</body>')){
+    if (html.includes('</body>')) {
       return html.replace('</body>', iframeScript + '</body>')
-    }else{
+    } else {
       return html + iframeScript;
     }
   }
@@ -88,22 +88,22 @@ const ProjectPreview = forwardRef<ProjectPreviewRef, ProjectPreviewProps>(({proj
     <div className='relative h-full bg-gray-900 flex-1 rounded-xl overflow-hidden max-sm:ml-2'>
       {project.current_code ? (
         <>
-          <iframe 
-          ref={iframeRef}
-          srcDoc={injectPreview(project.current_code)}
-          className={`h-full max-sm:w-full ${resolutions[device]} mx-auto transition-all`}
+          <iframe
+            ref={iframeRef}
+            srcDoc={injectPreview(project.current_code)}
+            className={`h-full max-sm:w-full ${resolutions[device]} mx-auto transition-all`}
           />
           {showEditorPanel && selectedElement && (
             <EditorPanel selectedElement={selectedElement}
-            onUpdate={handleUpdate} onClose={()=> {
-              setSelectedElement(null);
-              if (iframeRef.current?.contentWindow){
-                iframeRef.current.contentWindow.postMessage({type: 'CLEAR_SELECTION_REQUEST'}, '*')
-              }
-            }}/>
+              onUpdate={handleUpdate} onClose={() => {
+                setSelectedElement(null);
+                if (iframeRef.current?.contentWindow) {
+                  iframeRef.current.contentWindow.postMessage({ type: 'CLEAR_SELECTION_REQUEST' }, '*')
+                }
+              }} />
           )}
         </>
-      ): isGenerating && (
+      ) : isGenerating && (
         <LoaderSteps />
       )}
     </div>
