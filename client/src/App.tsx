@@ -11,18 +11,19 @@ import Navbar from './components/Navbar'
 import { Toaster } from 'sonner'
 import AuthPage from './pages/auth/AuthPage'
 import Settings from './pages/Settings'
-
+import Loading from './pages/Loading'
 
 const App = () => {
 
   const { pathname } = useLocation()
 
   const hideNavbar = pathname.startsWith('/projects/') && pathname !== '/projects'
-                        || pathname.startsWith('/view/')
-                        || pathname.startsWith('/preview/')
-  return (      
+                      || pathname.startsWith('/view/')
+                      || pathname.startsWith('/preview/')
+
+  return (
     <div>
-      <Toaster />
+    <Toaster />
       {!hideNavbar && <Navbar />}
       
       <Routes>
@@ -36,6 +37,7 @@ const App = () => {
         <Route path='/view/:projectId' element={<View />} />
         <Route path="/auth/:pathname" element={<AuthPage />} />
         <Route path="/account/settings" element={<Settings />} />
+        <Route path='/loading' element={<Loading />}/>
       </Routes>
     </div>
   )
