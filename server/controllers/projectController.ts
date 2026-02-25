@@ -51,7 +51,7 @@ export const makeRevision = async (req: Request, res: Response) => {
 
         // Enhance user prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'stepfun/step-3.5-flash:free',
+            model: 'arcee-ai/trinity-large-preview:free',
             messages: [
                 {
                     role: 'system',
@@ -92,7 +92,7 @@ export const makeRevision = async (req: Request, res: Response) => {
 
         // Generate website code
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'stepfun/step-3.5-flash:free',
+            model: 'arcee-ai/trinity-large-preview:free',
             messages: [
                 {
                     role: 'system',
