@@ -72,7 +72,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
         // Enhance user prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'arcee-ai/trinity-large-preview:free',
+            model: 'mistralai/mistral-small-3.1-24b-instruct:free',
             messages: [
                 {
                     role: 'system',
@@ -116,7 +116,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
         // Generate website code
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'arcee-ai/trinity-large-preview:free',
+            model: 'mistralai/mistral-small-3.1-24b-instruct:free',
             messages: [
                 {
                     role: 'system',
